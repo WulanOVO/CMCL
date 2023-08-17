@@ -1,12 +1,13 @@
-from wget import download
-from subprocess import run
 from os import path,remove,mkdir,listdir
 from shutil import rmtree,unpack_archive
+from locale import getdefaultlocale
 from psutil import virtual_memory
+from subprocess import run
 from random import randint
+from wget import download
+from requests import get
 from time import sleep
 from json import loads
-from requests import get
 
 if not path.exists('cmcl.json'):
     name = 'Player'+str(randint(1000,9999))
@@ -34,7 +35,6 @@ if not path.exists('cmcl.json'):
     download('https://gitee.com/MrShiehX/console-minecraft-launcher/releases/download/2.2/cmcl.jar')
     run('cls',shell=True)
 
-
 def check():
     global nV
     global nOF
@@ -61,6 +61,11 @@ if check():
     except:pass
     run('"jdk-20.0.2/bin/java.exe" -jar cmcl.jar install '+nV+' --optifine '+nOF+' -n '+nV+'-'+nOF,shell=True)
     run('cls',shell=True)
+
+    if not path.exists('.minecraft\saves'):
+        lang,_ = getdefaultlocale()
+        lang = lang.lower()
+        open('.minecraft\options.txt', 'w').write('lang:'+lang)
 
 try:
     m = loads(open('cmcl.json', 'r').read())
