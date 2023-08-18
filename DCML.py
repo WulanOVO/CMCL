@@ -9,26 +9,31 @@ from requests import get
 from time import sleep
 from json import loads
 
+lang,_ = getdefaultlocale()
+lang = lang.lower()
+
 if not path.exists('cmcl.json'):
     name = 'Player'+str(randint(1000,9999))
-    print('欢迎使用DCML-大聪明启动器！\n你的游戏名是'+name)
+    if lang == 'zh_cn':
+        print('欢迎使用DCML-大聪明启动器！\n你的游戏名是'+name)
+    else:
+        print('Welcome to use DCML!\nYour player name is '+name)
     sleep(3)
     run('cls',shell=True)
+
     open('cmcl.json', 'w').write('''{
 "exitWithMinecraft": false,
 "javaPath": "jdk-20.0.2//bin//java.exe",
-"windowSizeWidth": 854,
-"windowSizeHeight": 480,
 "downloadSource": 2,
 "checkAccountBeforeStart": false,
 "accounts": [{
-"playerName": "'''+name+'''",
+"playerName": "%s",
 "loginMethod": 0,
 "selected": true
 }],
 "printStartupInfo": false,
 "maxMemory": 8192
-}''')
+}''' %name)
     download('https://d6.injdk.cn/openjdk/openjdk/20/openjdk-20.0.2_windows-x64_bin.zip')
     unpack_archive('openjdk-20.0.2_windows-x64_bin.zip')
     remove('openjdk-20.0.2_windows-x64_bin.zip')
@@ -59,13 +64,10 @@ if check():
         rmtree('.minecraft/versions')
         mkdir('.minecraft/versions')
     except:pass
-    run('"jdk-20.0.2/bin/java.exe" -jar cmcl.jar install '+nV+' --optifine '+nOF+' -n '+nV+'-'+nOF,shell=True)
-    run('cls',shell=True)
-
+    run('"jdk-20.0.2/bin/java.exe" -jar cmcl.jar install %s --optifine %s -n %s-%s' %(nV,nOF,nV,nOF),shell=True)
     if not path.exists('.minecraft\saves'):
-        lang,_ = getdefaultlocale()
-        lang = lang.lower()
         open('.minecraft\options.txt', 'w').write('lang:'+lang)
+    run('cls',shell=True)
 
 try:
     m = loads(open('cmcl.json', 'r').read())
@@ -73,4 +75,4 @@ try:
     open('cmcl.json', 'w').write(str(m))
 except:pass
 
-run('"jdk-20.0.2/bin/java.exe" -jar cmcl.jar '+nV+'-'+nOF,shell=True)
+run('"jdk-20.0.2/bin/java.exe" -jar cmcl.jar %s-%s' %(nV,nOF),shell=True)
