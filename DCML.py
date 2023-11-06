@@ -1,7 +1,8 @@
-from os import path,remove,mkdir,listdir,system
+from os import path,remove,mkdir,listdir,system,chdir
 from shutil import rmtree,unpack_archive
 from locale import getdefaultlocale
 from psutil import virtual_memory
+from subprocess import getoutput
 from random import randint
 from wget import download
 from requests import get
@@ -12,8 +13,31 @@ lang,_ = getdefaultlocale()
 lang = lang.lower()
 system('cls')
 
+#修改运行目录#
+try:
+    chdir('./DCML')
+except:pass
+
+#检查已安装的Java版本#
+try:
+    jv = getoutput('java -version')
+    jv = jv.split('"')[1]
+    jv = jv.split('.')[0]
+    jv = int(jv)
+except:
+    jv = 0
+if jv >= 16:
+    cmcl = 'cmcl.exe '
+else:
+    cmcl = 'jdk-21\\bin\\java.exe -jar cmcl.jar '
+
+
 #初始化#
 if not path.exists('cmcl.json'): #判断第一次启动#
+    #创建DCML文件夹#
+    mkdir('DCML')
+    chdir('./DCML')
+
     #生成玩家名#
     name = 'Player'+str(randint(1000,9999))
     if lang == 'zh_cn':
@@ -21,15 +45,21 @@ if not path.exists('cmcl.json'): #判断第一次启动#
     else:
         print('Welcome to use DCML!\nYour player name is '+name)
 
-    #下载cmcl#
-    download('https://gitee.com/MrShiehX/console-minecraft-launcher/releases/download/2.2.1/cmcl.jar',bar=None)
-    system('cls')
-
     try:
-        #下载Java并解压#
-        download('https://d6.injdk.cn/openjdk/openjdk/21/openjdk-21_windows-x64_bin.zip')
-        unpack_archive('openjdk-21_windows-x64_bin.zip')
-        remove('openjdk-21_windows-x64_bin.zip')
+        if cmcl == 'cmcl.exe ':
+            #下载cmcl.exe#
+            download('https://gitee.com/MrShiehX/console-minecraft-launcher/releases/download/2.2.1/cmcl.exe',bar=None)
+            system('cls')
+        else:
+            #下载cmcl.jar#
+            download('https://gitee.com/MrShiehX/console-minecraft-launcher/releases/download/2.2.1/cmcl.jar',bar=None)
+            system('cls')
+
+            #下载Java并解压#
+            download('https://d6.injdk.cn/openjdk/openjdk/21/openjdk-21_windows-x64_bin.zip')
+            unpack_archive('openjdk-21_windows-x64_bin.zip')
+            remove('openjdk-21_windows-x64_bin.zip')
+            system('cls')
     except:
         #无网络时报错并退出#
         if lang == 'zh_cn':
@@ -52,7 +82,6 @@ if not path.exists('cmcl.json'): #判断第一次启动#
 "printStartupInfo": false,
 "maxMemory": 8192
 }''' %name)
-    system('cls')
 
 #检测是否需要更新#
 def check():
@@ -115,7 +144,7 @@ if check():
         mkdir('.minecraft/versions')
     except:pass
     #下载#
-    system('jdk-21\\bin\\java.exe -jar cmcl.jar install %s --optifine %s -n %s-%s' %(nV,nOF,nV,nOF))
+    system(cmcl+' install %s --optifine %s -n %s-%s' %(nV,nOF,nV,nOF))
 
     if not path.exists('.minecraft/saves'): #判断第一次下载#
         open('.minecraft/options.txt', 'w').write('lang:'+lang) #自动修改游戏语言#
@@ -130,9 +159,9 @@ ofChunkUpdatesDynamic:true''') #开启优化设置#
 try:
     #自动分配内存#
     m = loads(open('cmcl.json', 'r').read())
-    m["maxMemory"] = virtual_memory().available//1153433 #获取可用内存并修改cmcl.json#
+    m["maxMemory"] = virtual_memory().available//1153430 #获取可用内存并修改cmcl.json#
     open('cmcl.json', 'w').write(str(m))
 except:pass
 
 #我的世界，启动！#
-system('"jdk-21\\bin\\java.exe" -jar cmcl.jar %s-%s' %(nV,nOF))
+system(cmcl+'%s-%s' %(nV,nOF))
